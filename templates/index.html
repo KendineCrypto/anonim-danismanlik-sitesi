@@ -23,63 +23,61 @@
   </div>
 
  <!-- ...existing code... -->
-  <script>
-    // Chatbot'u açan buton
-    document.getElementById("open-chatbot-btn").onclick = function() {
-      document.getElementById("welcome-section").style.display = "none";
-      document.getElementById("chat-container").style.display = "block";
-      document.getElementById("user-input").focus();
-    };
+<!-- ...existing code... -->
+<script>
+  // Chatbot'u açan buton
+  document.getElementById("open-chatbot-btn").onclick = function() {
+    document.getElementById("welcome-section").style.display = "none";
+    document.getElementById("chat-container").style.display = "block";
+    document.getElementById("user-input").focus();
+  };
 
-    async function sendMessage() {
-      const input = document.getElementById("user-input");
-      const message = input.value;
-      if (!message) return;
+  async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
 
-      const chatBox = document.getElementById("chat-box");
-      chatBox.innerHTML += `<div class="user-msg">👤 ${message}</div>`;
-      input.value = "";
+    const chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML += `<div class="user-msg">👤 ${message}</div>`;
+    input.value = "";
 
-      // Yazıyor animasyonu ekle
-      const typingId = "typing-indicator";
-      chatBox.innerHTML += `
-        <div class="bot-msg" id="${typingId}">
-          <span class="typing-indicator">
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-          </span>
-        </div>
-      `;
-      chatBox.scrollTop = chatBox.scrollHeight;
+    // Yazıyor animasyonu ekle
+    const typingId = "typing-indicator";
+    chatBox.innerHTML += `
+      <div class="bot-msg" id="${typingId}">
+        <span class="typing-indicator">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </span>
+      </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await response.json();
-
-      // Yazıyor animasyonunu kaldır ve cevabı ekle
-      const typingDiv = document.getElementById(typingId);
-      if (typingDiv) typingDiv.remove();
-      chatBox.innerHTML += `<div class="bot-msg">🤖 ${data.response}</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // Enter ile mesaj gönderme
-    document.addEventListener("keydown", function(event) {
-      if (
-        document.getElementById("chat-container").style.display !== "none" &&
-        event.target.id === "user-input" &&
-        event.key === "Enter"
-      ) {
-        event.preventDefault();
-        sendMessage();
-      }
+    // Sunucuya isteği gönder
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
     });
-  </script>
+
+    const data = await response.json();
+
+    // Yazıyor animasyonunu kaldır ve cevabı ekle
+    const typingDiv = document.getElementById(typingId);
+    if (typingDiv) typingDiv.remove();
+    chatBox.innerHTML += `<div class="bot-msg">🤖 ${data.response}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // Enter ile mesaj gönderme
+  document.getElementById("user-input").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
 <!-- ...existing code... -->
 </body>
 </html>
