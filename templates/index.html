@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Anonim Chatbot</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="welcome-section" style="text-align:center; margin-top:80px;">
+    <h2>YAPAY ZEKA DANIŞMANLIK SİTESİ</h2>
+    <p>BÜTÜN DERTLERİNİZE SOMUT VE RASYONEL AKIL VEREN ÖZEL BİR DANIŞMAN</p>
+    <button id="open-chatbot-btn" style="margin-top:32px; padding:16px 32px; font-size:18px; border-radius:24px; background:#757575; color:white; border:none; cursor:pointer;">
+      Kendi özel yapay zekanızla konuşun
+    </button>
+  </div>
+
+  <div class="chat-container" id="chat-container" style="display:none;">
+    <div class="chat-box" id="chat-box"></div>
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Bir şeyler yaz..." autocomplete="off">
+      <button onclick="sendMessage()">Gönder</button>
+    </div>
+  </div>
+
+  <script>
+    // Chatbot'u açan buton
+    document.getElementById("open-chatbot-btn").onclick = function() {
+      document.getElementById("welcome-section").style.display = "none";
+      document.getElementById("chat-container").style.display = "block";
+      document.getElementById("user-input").focus();
+    };
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value;
+      if (!message) return;
+
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div class="user-msg">👤 ${message}</div>`;
+      input.value = "";
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      chatBox.innerHTML += `<div class="bot-msg">🤖 ${data.response}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Enter ile mesaj gönderme
+    document.addEventListener("keydown", function(event) {
+      if (
+        document.getElementById("chat-container").style.display !== "none" &&
+        event.target.id === "user-input" &&
+        event.key === "Enter"
+      ) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
